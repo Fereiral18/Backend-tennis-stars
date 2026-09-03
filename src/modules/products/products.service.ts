@@ -5,13 +5,13 @@ import { toNumber } from '@/common/utils/decimal.util';
 import type { CreateProductDto } from './dto/create-product.dto';
 import type { UpdateProductDto } from './dto/update-product.dto';
 import type { FindProductsQueryDto } from './dto/find-products.query.dto';
-import type { ProductResponse } from './product.types';
+import type { ProductResponseDto } from './dto/product-response.dto';
 
 @Injectable()
 export class ProductsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(query: FindProductsQueryDto): Promise<ProductResponse[]> {
+  async findAll(query: FindProductsQueryDto): Promise<ProductResponseDto[]> {
     const where: Prisma.ProductWhereInput = {
       ...(query.categoryId && { categoryId: query.categoryId }),
       ...(query.search && {
@@ -27,7 +27,7 @@ export class ProductsService {
     return products.map((product) => ProductsService.toResponse(product));
   }
 
-  async findOne(id: string): Promise<ProductResponse> {
+  async findOne(id: string): Promise<ProductResponseDto> {
     const product = await this.prisma.product.findUnique({ where: { id } });
 
     if (!product) {
@@ -37,13 +37,13 @@ export class ProductsService {
     return ProductsService.toResponse(product);
   }
 
-  async create(dto: CreateProductDto): Promise<ProductResponse> {
+  async create(dto: CreateProductDto): Promise<ProductResponseDto> {
     const product = await this.prisma.product.create({ data: dto });
 
     return ProductsService.toResponse(product);
   }
 
-  async update(id: string, dto: UpdateProductDto): Promise<ProductResponse> {
+  async update(id: string, dto: UpdateProductDto): Promise<ProductResponseDto> {
     await this.findOne(id);
 
     const product = await this.prisma.product.update({ where: { id }, data: dto });
@@ -57,7 +57,7 @@ export class ProductsService {
     await this.prisma.product.delete({ where: { id } });
   }
 
-  private static toResponse(product: Product): ProductResponse {
+  private static toResponse(product: Product): ProductResponseDto {
     return {
       id: product.id,
       name: product.name,

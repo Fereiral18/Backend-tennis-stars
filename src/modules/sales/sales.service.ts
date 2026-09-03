@@ -5,7 +5,7 @@ import { toNumber } from '@/common/utils/decimal.util';
 import type { CreateSaleDto } from './dto/create-sale.dto';
 import type { UpdateSaleStatusDto } from './dto/update-sale-status.dto';
 import type { UpdatePaymentStatusDto } from './dto/update-payment-status.dto';
-import type { SaleResponse } from './sale.types';
+import type { SaleResponseDto } from './dto/sale-response.dto';
 
 type SaleWithItems = Prisma.SaleGetPayload<{ include: { items: true } }>;
 
@@ -15,7 +15,7 @@ const SALE_WITH_ITEMS = { items: true } satisfies Prisma.SaleInclude;
 export class SalesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(): Promise<SaleResponse[]> {
+  async findAll(): Promise<SaleResponseDto[]> {
     const sales = await this.prisma.sale.findMany({
       include: SALE_WITH_ITEMS,
       orderBy: { createdAt: 'desc' },
@@ -24,7 +24,7 @@ export class SalesService {
     return sales.map((sale) => SalesService.toResponse(sale));
   }
 
-  async findOne(id: string): Promise<SaleResponse> {
+  async findOne(id: string): Promise<SaleResponseDto> {
     const sale = await this.prisma.sale.findUnique({
       where: { id },
       include: SALE_WITH_ITEMS,
@@ -37,7 +37,7 @@ export class SalesService {
     return SalesService.toResponse(sale);
   }
 
-  async create(dto: CreateSaleDto): Promise<SaleResponse> {
+  async create(dto: CreateSaleDto): Promise<SaleResponseDto> {
     const product = await this.prisma.product.findUnique({ where: { id: dto.productId } });
 
     if (!product) {
@@ -77,7 +77,7 @@ export class SalesService {
     return SalesService.toResponse(sale);
   }
 
-  async findRecent(limit: number): Promise<SaleResponse[]> {
+  async findRecent(limit: number): Promise<SaleResponseDto[]> {
     const sales = await this.prisma.sale.findMany({
       include: SALE_WITH_ITEMS,
       orderBy: { createdAt: 'desc' },
@@ -87,7 +87,7 @@ export class SalesService {
     return sales.map((sale) => SalesService.toResponse(sale));
   }
 
-  async updateStatus(id: string, dto: UpdateSaleStatusDto): Promise<SaleResponse> {
+  async updateStatus(id: string, dto: UpdateSaleStatusDto): Promise<SaleResponseDto> {
     await this.findOne(id);
 
     const sale = await this.prisma.sale.update({
@@ -99,7 +99,7 @@ export class SalesService {
     return SalesService.toResponse(sale);
   }
 
-  async updatePaymentStatus(id: string, dto: UpdatePaymentStatusDto): Promise<SaleResponse> {
+  async updatePaymentStatus(id: string, dto: UpdatePaymentStatusDto): Promise<SaleResponseDto> {
     await this.findOne(id);
 
     const sale = await this.prisma.sale.update({
@@ -111,7 +111,7 @@ export class SalesService {
     return SalesService.toResponse(sale);
   }
 
-  private static toResponse(sale: SaleWithItems): SaleResponse {
+  private static toResponse(sale: SaleWithItems): SaleResponseDto {
     return {
       id: sale.id,
       customerName: sale.customerName,

@@ -1,6 +1,7 @@
-import type { PaymentMethod, PaymentStatus, SaleStatus } from '@prisma/client';
+import { ApiProperty } from '@nestjs/swagger';
+import { PaymentMethod, PaymentStatus, SaleStatus } from '@prisma/client';
 
-export interface SaleItemResponse {
+export class SaleItemResponseDto {
   productId: string;
   productName: string;
   quantity: number;
@@ -8,7 +9,7 @@ export interface SaleItemResponse {
   subtotal: number;
 }
 
-export interface ShippingInfoResponse {
+export class ShippingResponseDto {
   recipientName: string;
   address: string;
   city: string;
@@ -17,16 +18,23 @@ export interface ShippingInfoResponse {
   phone: string;
 }
 
-export interface SaleResponse {
+export class SaleResponseDto {
   id: string;
   customerName: string;
   customerEmail: string;
-  items: SaleItemResponse[];
+  items: SaleItemResponseDto[];
   total: number;
+
+  @ApiProperty({ enum: SaleStatus })
   status: SaleStatus;
+
+  @ApiProperty({ enum: PaymentMethod })
   paymentMethod: PaymentMethod;
+
+  @ApiProperty({ enum: PaymentStatus })
   paymentStatus: PaymentStatus;
-  shipping: ShippingInfoResponse;
+
+  shipping: ShippingResponseDto;
   createdAt: Date;
   updatedAt: Date;
 }

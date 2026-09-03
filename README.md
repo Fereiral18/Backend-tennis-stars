@@ -8,6 +8,7 @@ REST API for **Tennis Stars**, an ecommerce for sports shoes (Nike, Adidas, Puma
 - [Prisma 6](https://www.prisma.io/) + PostgreSQL
 - JWT auth (`@nestjs/jwt` + `passport-jwt`)
 - `class-validator` / `class-transformer` for request validation
+- `@nestjs/swagger` for OpenAPI docs (schemas auto-generated from DTOs via the Nest CLI plugin)
 - ESLint (flat config) + Prettier
 
 ## Project structure
@@ -35,7 +36,7 @@ prisma/
   seed.ts            # creates the admin user + demo categories/products
 ```
 
-Each domain module follows the same shape: `*.controller.ts` (HTTP layer), `*.service.ts` (business logic + Prisma access), `dto/` (validated input), and a `*.types.ts` with the exact response shape consumed by the frontend.
+Each domain module follows the same shape: `*.controller.ts` (HTTP layer, decorated for Swagger), `*.service.ts` (business logic + Prisma access), and `dto/` — both the validated request DTOs (`class-validator`) and the `*-response.dto.ts` classes that describe the exact response shape consumed by the frontend and shown in Swagger.
 
 ## Data model
 
@@ -84,6 +85,12 @@ npm run start:dev
 
 The API is served under `http://localhost:3000/api`.
 
+### 6. Explore the API docs
+
+Interactive Swagger UI: `http://localhost:3000/docs`. Raw OpenAPI JSON: `http://localhost:3000/docs-json`.
+
+Click **Authorize** and paste the token returned by `POST /api/auth/login` (no need to type `Bearer `, Swagger adds it) to try out protected endpoints directly from the browser.
+
 ## Scripts
 
 | Script                    | Description                                   |
@@ -99,7 +106,7 @@ The API is served under `http://localhost:3000/api`.
 
 ## API overview
 
-All routes are prefixed with `/api` and require `Authorization: Bearer <token>` unless marked **public**.
+All routes are prefixed with `/api` and require `Authorization: Bearer <token>` unless marked **public**. Full request/response schemas live in Swagger (`/docs`) — this is just a quick reference.
 
 | Method | Route                          | Description                     |
 | ------ | ------------------------------- | -------------------------------- |

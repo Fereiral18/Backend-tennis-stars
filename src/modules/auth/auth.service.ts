@@ -4,7 +4,8 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '@/prisma/prisma.service';
 import type { JwtPayload } from '@/common/types/authenticated-user.interface';
 import type { LoginDto } from './dto/login.dto';
-import type { AuthResponse, AuthUserResponse } from './auth.types';
+import type { LoginResponseDto } from './dto/login-response.dto';
+import type { AuthUserResponseDto } from './dto/auth-user-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -13,7 +14,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login({ email, password }: LoginDto): Promise<AuthResponse> {
+  async login({ email, password }: LoginDto): Promise<LoginResponseDto> {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (!user) {
@@ -34,7 +35,7 @@ export class AuthService {
     };
   }
 
-  async me(userId: string): Promise<AuthUserResponse> {
+  async me(userId: string): Promise<AuthUserResponseDto> {
     const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
 
     return { id: user.id, name: user.name, email: user.email };

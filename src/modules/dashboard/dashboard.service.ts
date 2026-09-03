@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { toNumber } from '@/common/utils/decimal.util';
 import { SalesService } from '../sales/sales.service';
-import type { DashboardSummary } from './dashboard.types';
+import type { DashboardSummaryDto } from './dto/dashboard-summary.dto';
 
 const RECENT_SALES_LIMIT = 5;
 
@@ -13,7 +13,7 @@ export class DashboardService {
     private readonly salesService: SalesService,
   ) {}
 
-  async getSummary(): Promise<DashboardSummary> {
+  async getSummary(): Promise<DashboardSummaryDto> {
     const [totalProducts, totalCategories, totalSales, revenue, recentSales] = await Promise.all([
       this.prisma.product.count(),
       this.prisma.category.count(),
