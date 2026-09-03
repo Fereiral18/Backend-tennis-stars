@@ -21,6 +21,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
       isGlobal: true,
       load: [appConfig, jwtConfig],
       validationSchema: envValidationSchema,
+      ignoreEnvFile: true
     }),
     PrismaModule,
     AuthModule,
