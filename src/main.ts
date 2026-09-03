@@ -1,0 +1,30 @@
+import { Logger, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
+import helmet from 'helmet';
+import { AppModule } from './app.module';
+
+async function bootstrap(): Promise<void> {
+  const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+
+  app.use(helmet());
+  app.enableCors({ origin: configService.get<string>('app.corsOrigin') });
+  app.setGlobalPrefix('api');
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  );
+
+  const port = configService.get<number>('app.port') ?? 3000;
+  await app.listen(port);
+
+  Logger.log(`🚀 Application is running on: http://localhost:${port}/api`, 'Bootstrap');
+}
+
+void bootstrap();

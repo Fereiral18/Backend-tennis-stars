@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum SaleStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  TRANSFER
+  CREDIT_CARD
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(ADMIN)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String
+  products    Product[]
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("categories")
+}
+
+model Product {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  description String
+  price       Decimal    @db.Decimal(10, 2)
+  imageUrl    String     @map("image_url")
+  categoryId  String     @map("category_id")
+  category    Category   @relation(fields: [categoryId], references: [id])
+  saleItems   SaleItem[]
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  @@index([categoryId])
+  @@map("products")
+}
+
+model Sale {
+  id            String        @id @default(uuid())
+  customerName  String        @map("customer_name")
+  customerEmail String        @map("customer_email")
+  total         Decimal       @db.Decimal(10, 2)
+  status        SaleStatus    @default(PENDING)
+  paymentMethod PaymentMethod @map("payment_method")
+  paymentStatus PaymentStatus @default(PENDING) @map("payment_status")
+
+  recipientName String @map("recipient_name")
+  address       String
+  city          String
+  province      String
+  postalCode    String @map("postal_code")
+  phone         String
+
+  items SaleItem[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("sales")
+}
+
+model SaleItem {
+  id          String  @id @default(uuid())
+  saleId      String  @map("sale_id")
+  sale        Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId   String  @map("product_id")
+  product     Product @relation(fields: [productId], references: [id])
+  productName String  @map("product_name")
+  quantity    Int
+  unitPrice   Decimal @db.Decimal(10, 2) @map("unit_price")
+  subtotal    Decimal @db.Decimal(10, 2)
+
+  @@index([saleId])
+  @@index([productId])
+  @@map("sale_items")
+}
