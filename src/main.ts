@@ -1,19 +1,30 @@
+import { mkdirSync } from 'node:fs';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { UPLOADS_DIR, UPLOADS_URL_PREFIX } from './modules/uploads/uploads.constants';
 
 const SWAGGER_PATH = 'docs';
 const BEARER_AUTH_NAME = 'access-token';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
+  mkdirSync(UPLOADS_DIR, { recursive: true });
+
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
 
-  app.use(helmet({ contentSecurityPolicy: false }));
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
   app.enableCors({ origin: configService.get<string | string[]>('app.corsOrigin') });
+  app.useStaticAssets(UPLOADS_DIR, { prefix: UPLOADS_URL_PREFIX });
   app.setGlobalPrefix('api');
 
   app.useGlobalPipes(

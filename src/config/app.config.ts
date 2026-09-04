@@ -17,4 +17,5 @@ export default registerAs('app', () => ({
   nodeEnv: process.env.NODE_ENV ?? 'development',
   port: parseInt(process.env.PORT ?? '3000', 10),
   corsOrigin: parseCorsOrigin(process.env.CORS_ORIGIN),
+  backendUrl: (process.env.BACKEND_URL ?? 'http://localhost:3000').replace(/\/+$/, ''),
 }));

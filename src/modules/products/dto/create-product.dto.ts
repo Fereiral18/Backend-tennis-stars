@@ -29,7 +29,7 @@ export class CreateProductDto {
   @Max(999999, { message: 'El precio es demasiado alto' })
   price!: number;
 
-  @IsUrl({}, { message: 'Ingresá una URL de imagen válida' })
+  @IsUrl({ require_tld: false }, { message: 'Ingresá una URL de imagen válida' })
   imageUrl!: string;
 
   @IsString()

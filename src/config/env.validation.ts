@@ -7,4 +7,5 @@ export const envValidationSchema = Joi.object({
   JWT_SECRET: Joi.string().min(16).required(),
   JWT_EXPIRES_IN: Joi.string().default('1d'),
   CORS_ORIGIN: Joi.string().default('*'),
+  BACKEND_URL: Joi.string().uri().default('http://localhost:3000'),
 });
