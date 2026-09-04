@@ -106,29 +106,32 @@ Click **Authorize** and paste the token returned by `POST /api/auth/login` (no n
 
 ## API overview
 
-All routes are prefixed with `/api` and require `Authorization: Bearer <token>` unless marked **public**. Full request/response schemas live in Swagger (`/docs`) — this is just a quick reference.
+All routes are prefixed with `/api`. Access levels: **public** (no token needed), **auth** (any logged-in user, `USER` or `ADMIN`), **admin** (`ADMIN` role only, via `@Roles(Role.ADMIN)` + the global `RolesGuard`). Full request/response schemas live in Swagger (`/docs`) — this is just a quick reference.
 
-| Method | Route                          | Description                     |
-| ------ | ------------------------------- | -------------------------------- |
-| POST   | `/auth/login` *(public)*        | Returns `{ token, user }`        |
-| GET    | `/auth/me`                      | Current authenticated user       |
-| GET    | `/categories`                   | List categories                  |
-| GET    | `/categories/:id`                | Get one category                 |
-| POST   | `/categories`                   | Create category                  |
-| PATCH  | `/categories/:id`                | Update category                  |
-| DELETE | `/categories/:id`                | Delete category                  |
-| GET    | `/products?categoryId&search`   | List products (optional filters) |
-| GET    | `/products/:id`                  | Get one product                  |
-| POST   | `/products`                     | Create product                   |
-| PATCH  | `/products/:id`                  | Update product                   |
-| DELETE | `/products/:id`                  | Delete product                   |
-| GET    | `/sales`                        | List sales                       |
-| GET    | `/sales/:id`                     | Get one sale                     |
-| POST   | `/sales`                        | Create a sale                    |
-| PATCH  | `/sales/:id/status`              | Update sale status               |
-| PATCH  | `/sales/:id/payment-status`      | Update payment status            |
-| GET    | `/dashboard/summary`            | Metrics + 5 most recent sales    |
-| GET    | `/health` *(public)*             | Health check                     |
+| Method | Route                          | Access  | Description                     |
+| ------ | ------------------------------- | ------- | -------------------------------- |
+| POST   | `/auth/login`                   | public  | Returns `{ token, user }`        |
+| POST   | `/auth/register`                | public  | Creates a `USER` account and logs in |
+| GET    | `/auth/me`                      | auth    | Current authenticated user       |
+| GET    | `/categories`                   | public  | List categories                  |
+| GET    | `/categories/:id`                | public  | Get one category                 |
+| POST   | `/categories`                   | admin   | Create category                  |
+| PATCH  | `/categories/:id`                | admin   | Update category                  |
+| DELETE | `/categories/:id`                | admin   | Delete category                  |
+| GET    | `/products?categoryId&search`   | public  | List products (optional filters) |
+| GET    | `/products/:id`                  | public  | Get one product                  |
+| POST   | `/products`                     | admin   | Create product                   |
+| PATCH  | `/products/:id`                  | admin   | Update product                   |
+| DELETE | `/products/:id`                  | admin   | Delete product                   |
+| GET    | `/sales`                        | admin   | List sales                       |
+| GET    | `/sales/:id`                     | admin   | Get one sale                     |
+| POST   | `/sales`                        | auth    | Create a sale (checkout)         |
+| PATCH  | `/sales/:id/status`              | admin   | Update sale status               |
+| PATCH  | `/sales/:id/payment-status`      | admin   | Update payment status            |
+| GET    | `/dashboard/summary`            | admin   | Metrics + 5 most recent sales    |
+| GET    | `/health`                       | public  | Health check                     |
+
+New accounts created via `/auth/register` always get the `USER` role — there is no public way to create an `ADMIN` account. Promote a user to `ADMIN` directly in the database (or via `prisma/seed.ts`) if needed.
 
 Errors follow a consistent shape:
 

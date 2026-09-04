@@ -38,7 +38,7 @@ async function bootstrap(): Promise<void> {
   SwaggerModule.setup(SWAGGER_PATH, app, swaggerDocument);
 
   const port = configService.get<number>('app.port') ?? 3000;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
   Logger.log(`🚀 Application is running on: http://localhost:${port}/api`, 'Bootstrap');
   Logger.log(`📚 Swagger docs available at: http://localhost:${port}/${SWAGGER_PATH}`, 'Bootstrap');
