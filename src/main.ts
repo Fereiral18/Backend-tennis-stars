@@ -13,7 +13,7 @@ async function bootstrap(): Promise<void> {
   const configService = app.get(ConfigService);
 
   app.use(helmet({ contentSecurityPolicy: false }));
-  app.enableCors({ origin: configService.get<string>('app.corsOrigin') });
+  app.enableCors({ origin: configService.get<string | string[]>('app.corsOrigin') });
   app.setGlobalPrefix('api');
 
   app.useGlobalPipes(
