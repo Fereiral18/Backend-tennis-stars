@@ -4,10 +4,12 @@ import {
   BadRequestException,
   Controller,
   Post,
+  Req,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import type { Request } from 'express';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -62,7 +64,10 @@ export class UploadsController {
       },
     }),
   )
-  uploadImage(@UploadedFile() file?: Express.Multer.File): UploadImageResponseDto {
-    return this.uploadsService.saveImage(file);
+  uploadImage(
+    @Req() request: Request,
+    @UploadedFile() file?: Express.Multer.File,
+  ): UploadImageResponseDto {
+    return this.uploadsService.saveImage(request, file);
   }
 }
