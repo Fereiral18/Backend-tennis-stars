@@ -15,6 +15,7 @@ import { CreateSaleDto } from './dto/create-sale.dto';
 import { UpdateSaleStatusDto } from './dto/update-sale-status.dto';
 import { UpdatePaymentStatusDto } from './dto/update-payment-status.dto';
 import { SaleResponseDto } from './dto/sale-response.dto';
+import { CustomerSummaryResponseDto } from './dto/customer-summary-response.dto';
 
 @ApiTags('Sales')
 @ApiBearerAuth('access-token')
@@ -29,6 +30,17 @@ export class SalesController {
   @ApiForbiddenResponse({ description: 'Requires ADMIN role' })
   findAll() {
     return this.salesService.findAll();
+  }
+
+  @Roles(Role.ADMIN)
+  @Get('customers')
+  @ApiOperation({
+    summary: 'List customers aggregated from sales, with total products purchased (admin only)',
+  })
+  @ApiOkResponse({ description: 'Customer summary', type: [CustomerSummaryResponseDto] })
+  @ApiForbiddenResponse({ description: 'Requires ADMIN role' })
+  getCustomerSummary() {
+    return this.salesService.getCustomerSummary();
   }
 
   @Roles(Role.ADMIN)

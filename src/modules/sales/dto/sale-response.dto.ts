@@ -1,9 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PaymentMethod, PaymentStatus, SaleStatus } from '@prisma/client';
+import { Gender, PaymentMethod, PaymentStatus, SaleStatus } from '@prisma/client';
 
 export class SaleItemResponseDto {
   productId: string;
   productName: string;
+
+  @ApiProperty({ enum: Gender })
+  gender: Gender;
+
+  color: string | null;
+  size: string | null;
   quantity: number;
   unitPrice: number;
   subtotal: number;

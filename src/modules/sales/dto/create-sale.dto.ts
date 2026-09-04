@@ -1,5 +1,16 @@
 import { Type } from 'class-transformer';
-import { IsEmail, IsEnum, IsInt, IsUUID, Length, Max, Min, ValidateNested } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Length,
+  Max,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 import { PaymentMethod } from '@prisma/client';
 import { ShippingInfoDto } from './shipping-info.dto';
 
@@ -20,6 +31,14 @@ export class CreateSaleDto {
 
   @IsEnum(PaymentMethod, { message: 'Seleccioná un medio de pago' })
   paymentMethod!: PaymentMethod;
+
+  @IsOptional()
+  @IsString()
+  color?: string;
+
+  @IsOptional()
+  @IsString()
+  size?: string;
 
   @ValidateNested()
   @Type(() => ShippingInfoDto)

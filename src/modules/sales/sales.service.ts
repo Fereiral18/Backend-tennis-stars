@@ -6,6 +6,7 @@ import type { CreateSaleDto } from './dto/create-sale.dto';
 import type { UpdateSaleStatusDto } from './dto/update-sale-status.dto';
 import type { UpdatePaymentStatusDto } from './dto/update-payment-status.dto';
 import type { SaleResponseDto } from './dto/sale-response.dto';
+import type { CustomerSummaryResponseDto } from './dto/customer-summary-response.dto';
 
 type SaleWithItems = Prisma.SaleGetPayload<{ include: { items: true } }>;
 
@@ -64,6 +65,9 @@ export class SalesService {
             {
               productId: product.id,
               productName: product.name,
+              gender: product.gender,
+              color: dto.color,
+              size: dto.size,
               quantity: dto.quantity,
               unitPrice,
               subtotal,
@@ -85,6 +89,40 @@ export class SalesService {
     });
 
     return sales.map((sale) => SalesService.toResponse(sale));
+  }
+
+  async getCustomerSummary(): Promise<CustomerSummaryResponseDto[]> {
+    const sales = await this.prisma.sale.findMany({
+      select: {
+        customerName: true,
+        customerEmail: true,
+        items: { select: { quantity: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const byEmail = new Map<string, CustomerSummaryResponseDto>();
+
+    for (const sale of sales) {
+      const productsInSale = sale.items.reduce((sum, item) => sum + item.quantity, 0);
+      const existing = byEmail.get(sale.customerEmail);
+
+      if (existing) {
+        existing.totalOrders += 1;
+        existing.totalProductsPurchased += productsInSale;
+      } else {
+        byEmail.set(sale.customerEmail, {
+          customerName: sale.customerName,
+          customerEmail: sale.customerEmail,
+          totalOrders: 1,
+          totalProductsPurchased: productsInSale,
+        });
+      }
+    }
+
+    return Array.from(byEmail.values()).sort(
+      (a, b) => b.totalProductsPurchased - a.totalProductsPurchased,
+    );
   }
 
   async updateStatus(id: string, dto: UpdateSaleStatusDto): Promise<SaleResponseDto> {
@@ -119,6 +157,9 @@ export class SalesService {
       items: sale.items.map((item) => ({
         productId: item.productId,
         productName: item.productName,
+        gender: item.gender,
+        color: item.color,
+        size: item.size,
         quantity: item.quantity,
         unitPrice: toNumber(item.unitPrice),
         subtotal: toNumber(item.subtotal),
