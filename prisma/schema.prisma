@@ -32,6 +32,13 @@ enum PaymentStatus {
   PAID
 }
 
+enum Gender {
+  MALE
+  FEMALE
+  UNISEX
+  KIDS
+}
+
 model User {
   id        String   @id @default(uuid())
   name      String
@@ -56,19 +63,33 @@ model Category {
 }
 
 model Product {
-  id          String     @id @default(uuid())
-  name        String     @unique
+  id          String          @id @default(uuid())
+  name        String          @unique
   description String
-  price       Decimal    @db.Decimal(10, 2)
-  imageUrl    String     @map("image_url")
-  categoryId  String     @map("category_id")
-  category    Category   @relation(fields: [categoryId], references: [id])
+  price       Decimal         @db.Decimal(10, 2)
+  imageUrl    String          @map("image_url")
+  brand       String          @default("Sin marca")
+  gender      Gender          @default(UNISEX)
+  categoryId  String          @map("category_id")
+  category    Category        @relation(fields: [categoryId], references: [id])
+  options     ProductOption[]
   saleItems   SaleItem[]
-  createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
 
   @@index([categoryId])
   @@map("products")
+}
+
+model ProductOption {
+  id        String  @id @default(uuid())
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String
+  value     String
+
+  @@index([productId])
+  @@map("product_options")
 }
 
 model Sale {

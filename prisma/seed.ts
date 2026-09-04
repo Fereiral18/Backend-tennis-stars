@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from '@prisma/client';
+import { Gender, PrismaClient, Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -93,7 +93,12 @@ async function main(): Promise<void> {
       await prisma.product.upsert({
         where: { name: product.name },
         update: {},
-        create: { ...product, categoryId: createdCategory.id },
+        create: {
+          ...product,
+          brand: category.name,
+          gender: Gender.UNISEX,
+          categoryId: createdCategory.id,
+        },
       });
     }
   }

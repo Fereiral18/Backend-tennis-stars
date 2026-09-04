@@ -1,4 +1,19 @@
-import { IsNumber, IsPositive, IsString, IsUUID, IsUrl, Length, Max } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsPositive,
+  IsString,
+  IsUUID,
+  IsUrl,
+  Length,
+  Max,
+  ValidateNested,
+} from 'class-validator';
+import { Gender } from '@prisma/client';
+import { CreateProductOptionDto } from './create-product-option.dto';
 
 export class CreateProductDto {
   @IsString()
@@ -17,6 +32,19 @@ export class CreateProductDto {
   @IsUrl({}, { message: 'Ingresá una URL de imagen válida' })
   imageUrl!: string;
 
+  @IsString()
+  @Length(2, 50, { message: 'La marca debe tener entre 2 y 50 caracteres' })
+  brand!: string;
+
+  @IsEnum(Gender, { message: 'Seleccioná un género válido' })
+  gender!: Gender;
+
   @IsUUID('4', { message: 'Seleccioná una categoría' })
   categoryId!: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateProductOptionDto)
+  options?: CreateProductOptionDto[];
 }
