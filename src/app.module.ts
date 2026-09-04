@@ -20,7 +20,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     ConfigModule.forRoot({
       isGlobal: true,
       load: [appConfig, jwtConfig],
-      ignoreEnvFile: true
+      validationSchema: envValidationSchema,
     }),
     PrismaModule,
     AuthModule,
